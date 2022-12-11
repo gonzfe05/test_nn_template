@@ -1,0 +1,31 @@
+datamodule:
+  _target_: test_nn_template.data.datamodule.MyDataModule
+
+  datasets: ${data.datasets}
+
+  gpus: ${train.trainer.gpus}
+
+  num_workers:
+    train: 8
+    val: 4
+    test: 4
+
+  batch_size:
+    train: 32
+    val: 16
+    test: 16
+
+  # example
+  val_percentage: 0.1
+  task: multiclass
+  # threshold: 0.5
+
+datasets:
+  train:
+    _target_: test_nn_template.data.dataset.MyDataset
+
+#    val:
+#      - _target_: test_nn_template.data.dataset.MyDataset
+
+  test:
+    - _target_: test_nn_template.data.dataset.MyDataset
