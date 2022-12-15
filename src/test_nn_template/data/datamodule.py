@@ -47,7 +47,6 @@ class MetaData:
         self.task = task
         self.threshold = threshold
 
-
     def save(self, dst_path: Path) -> None:
         """Serialize the MetaData attributes into the zipped checkpoint in dst_path.
 
@@ -166,12 +165,11 @@ class MyDataModule(pl.LightningDataModule):
         if stage is None or stage == "test":
             self.test_datasets = [
                 hydra.utils.instantiate(
-                    dataset_cfg,
+                    self.datasets.test,
                     split="test",
                     path=PROJECT_ROOT / "data",
                     transform=transform,
                 )
-                for dataset_cfg in self.datasets.test
             ]
 
     def train_dataloader(self) -> DataLoader:
@@ -221,7 +219,25 @@ def main(cfg: omegaconf.DictConfig) -> None:
     Args:
         cfg: the hydra configuration
     """
-    _: pl.LightningDataModule = hydra.utils.instantiate(cfg.data.datamodule, _recursive_=False)
+    datamodule: pl.LightningDataModule = hydra.utils.instantiate(cfg.data.datamodule, _recursive_=False)
+    datamodule.metadata
+    loader = datamodule.train_dataloader()
+    example = next(iter(loader))
+    print(example[0].shape, example[1].shape)
+    cfg.data.datamodule.datasets.train["_target_"] = cfg.data.datamodule.datasets.train["_target_"].replace(
+        "MyDataset", "MyContrastativeDataset"
+    )
+    cfg.data.datamodule.datasets.test["_target_"] = cfg.data.datamodule.datasets.test["_target_"].replace(
+        "MyDataset", "MyContrastativeDataset"
+    )
+    cfg.data.datamodule.datasets.train["size"] = 1000
+    cfg.data.datamodule.datasets.test["size"] = 1000
+    cfg.data.datamodule["task"] = "binary"
+    datamodule: pl.LightningDataModule = hydra.utils.instantiate(cfg.data.datamodule, _recursive_=False)
+    datamodule.metadata
+    loader = datamodule.train_dataloader()
+    example = next(iter(loader))
+    print(example)
 
 
 if __name__ == "__main__":

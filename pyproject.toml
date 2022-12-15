@@ -24,6 +24,7 @@ matplotlib = "3.6.2"
 stqdm = "*"
 torch = "^1.13"
 torchvision = ">0.8"
+scikit-learn = "^1.2.0"
 # hydra-joblib-launcher
 
 [tool.poetry.group.docs.dependencies]
@@ -81,4 +82,3 @@ add-ignore = ['D100', 'D101', 'D102', 'D103', 'D104', 'D105', 'D106', 'D107']
 
 [tool.bandit]
 skips = ["B101"]
-

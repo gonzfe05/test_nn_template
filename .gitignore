@@ -1,6 +1,8 @@
 wandb
 multirun.yaml
 storage
+run_files
+.vscode
 
 # ignore the _version.py file
 _version.py

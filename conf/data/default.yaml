@@ -17,15 +17,18 @@ datamodule:
 
   # example
   val_percentage: 0.1
-  task: multiclass
+  task: binary
   # threshold: 0.5
 
 datasets:
   train:
-    _target_: test_nn_template.data.dataset.MyDataset
+    _target_: test_nn_template.data.dataset.MyContrastativeDataset
+    size: 50000
 
-#    val:
-#      - _target_: test_nn_template.data.dataset.MyDataset
+  # val:
+  #   - _target_: test_nn_template.data.dataset.MyDataset
+  # size: null
 
   test:
-    - _target_: test_nn_template.data.dataset.MyDataset
+    _target_: test_nn_template.data.dataset.MyContrastativeDataset
+    size: 1000
