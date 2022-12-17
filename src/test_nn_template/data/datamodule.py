@@ -150,15 +150,15 @@ class MyDataModule(pl.LightningDataModule):
         # Here you should instantiate your datasets, you may also split the train into train and validation if needed.
         if (stage is None or stage == "fit") and (self.train_dataset is None and self.val_datasets is None):
             # example
-            mnist_train = hydra.utils.instantiate(
+            data_train = hydra.utils.instantiate(
                 self.datasets.train,
                 split="train",
                 transform=transform,
                 path=PROJECT_ROOT / "data",
             )
-            train_length = int(len(mnist_train) * (1 - self.val_percentage))
-            val_length = len(mnist_train) - train_length
-            self.train_dataset, val_dataset = random_split(mnist_train, [train_length, val_length])
+            train_length = int(len(data_train) * (1 - self.val_percentage))
+            val_length = len(data_train) - train_length
+            self.train_dataset, val_dataset = random_split(data_train, [train_length, val_length])
 
             self.val_datasets = [val_dataset]
 

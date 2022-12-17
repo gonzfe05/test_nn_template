@@ -54,7 +54,8 @@ class Runner(object):
         self.callbacks = None
         self.storage_dir = None
         self.logger = None
-        self.trianer = None
+        self.trainer = None
+        self.fast_dev_run = None
         self.build_callbacks()
         self.build_logger()
         self.build_trainer()
@@ -135,6 +136,7 @@ class Runner(object):
         return self.logger.run_dir
 
     def run(self) -> str:
+        self.setup()
         datamodule = self.get_datamodule(cfg=self.cfg)
         num_classes = len(datamodule.metadata.class_vocab)
         arch = self.get_arch(cfg=self.cfg, num_classes=num_classes)

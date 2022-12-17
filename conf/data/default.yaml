@@ -17,18 +17,20 @@ datamodule:
 
   # example
   val_percentage: 0.1
-  task: binary
+  task: multiclass
   # threshold: 0.5
 
 datasets:
   train:
-    _target_: test_nn_template.data.dataset.MyContrastativeDataset
+    _target_: test_nn_template.data.dataset.MyEmbeddingsDataset
     size: 50000
+    run: 'sage-field-17'
 
   # val:
   #   - _target_: test_nn_template.data.dataset.MyDataset
   # size: null
 
   test:
-    _target_: test_nn_template.data.dataset.MyContrastativeDataset
+    _target_: test_nn_template.data.dataset.MyEmbeddingsDataset
     size: 1000
+    run: 'sage-field-17'

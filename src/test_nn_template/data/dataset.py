@@ -1,8 +1,12 @@
+import json
+import os
 import random
 from collections import defaultdict
+from glob import glob
 
 import hydra
 import omegaconf
+import torch
 from torch.utils.data import Dataset, get_worker_info
 from torchvision.datasets import FashionMNIST
 from tqdm import tqdm
@@ -99,6 +103,36 @@ class MyContrastativeDataset(Dataset):
         return f"MyContrastativeDataset({self.split=}, {self.size=}, seed={self.seed})"
 
 
+class MyEmbeddingsDataset(Dataset):
+    def __init__(self, split: Split, **kwargs):
+        super().__init__()
+        self.split: Split = split
+        self.root = os.path.join(kwargs["path"], kwargs["run"])
+        self.embeddings = glob(os.path.join(self.root, split, "data/embeddings/*.pt"))
+        self.labels = glob(os.path.join(self.root, split, "data/labels/*.pt"))
+        with open(os.path.join(self.root, split, "metadata", "metadata.json")) as f:
+            self.metadata = json.load(f)
+
+    @property
+    def class_vocab(self):
+        return self.metadata["class_to_idx"]
+
+    def __len__(self) -> int:
+        # example
+        return len(self.embeddings)
+
+    def __getitem__(self, index: int):
+        # example
+        emb = torch.load(self.embeddings[index])
+        label = torch.load(self.labels[index])
+        # label = torch.nn.functional.one_hot(label, num_classes=12)
+        return (emb, int(label.detach()))
+        # return (torch.rand(2), random.choice(range(9)))
+
+    def __repr__(self) -> str:
+        return f"MyDataset({self.split=}, n_instances={len(self)})"
+
+
 @hydra.main(config_path=str(PROJECT_ROOT / "conf"), config_name="default")
 def main(cfg: omegaconf.DictConfig) -> None:
     """Debug main to quickly develop the Dataset.
@@ -106,22 +140,23 @@ def main(cfg: omegaconf.DictConfig) -> None:
     Args:
         cfg: the hydra configuration
     """
+    cfg.data.datasets.train["size"] = 100
     data: Dataset = hydra.utils.instantiate(
         cfg.data.datasets.train, split="train", path=PROJECT_ROOT / "data", _recursive_=False
     )
     print(data)
 
     cfg.data.datasets.train["_target_"]: str = cfg.data.datasets.train["_target_"].replace(
-        "MyDataset", "MyContrastativeDataset"
+        "MyContrastativeDataset", "MyEmbeddingsDataset"
     )
-    cfg.data.datasets.train["size"] = 10000
+
     data: Dataset = hydra.utils.instantiate(
-        cfg.data.datasets.train, split="train", path=PROJECT_ROOT / "data", _recursive_=False
+        cfg.data.datasets.train, split="train", path=PROJECT_ROOT / "data", _recursive_=False, run="sage-field-17"
     )
     print(data)
+
     ex = data[0]
     print(ex)
-    print(sum([l for _, _, l in data]))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 module:
-  _target_: test_nn_template.pl_modules.pl_module.MyContrastativeLightningModule
+  _target_: test_nn_template.pl_modules.pl_module.MyLightningModule
 
 
 arch:
-  _target_: test_nn_template.modules.module.SiameseNetwork
+  _target_: test_nn_template.modules.module.FFN
